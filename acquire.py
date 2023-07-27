@@ -5,7 +5,6 @@ import math
 import matplotlib as plt
 import seaborn as sns
 
-import os
 import datetime
 import requests
 from io import StringIO
@@ -13,6 +12,49 @@ from io import StringIO
 
 
 #ACQUIRE
+from env import host, user, password
+
+def get_connection(db_name, user=user, host=host, password=password):
+    '''
+    This function uses my info from my env file to
+    create a connection url to access the Codeup db.
+    '''
+    return f'mysql+pymysql://{user}:{password}@{host}/{db_name}'
+
+def get_store_data():
+    '''
+    This function reads in the store, sales, and item data from the database
+    and returns a pandas DataFrame with all columns.
+    If the data exists in a CSV file, it reads the data from the file.
+    If the data is not available in the CSV file, it reads it from the database.
+    '''
+
+    filename = 'tsa_store.csv'
+
+    if os.path.isfile(filename):
+        return pd.read_csv(filename, index_col=0)
+    else:
+        # Replace the following SQL query with the appropriate SQL code to retrieve data from the database.
+        # For the purpose of this example, we'll use a placeholder query.
+        sql = '''
+        SELECT *
+        FROM sales
+        JOIN items USING (item_id)
+        JOIN stores USING (store_id)
+        LIMIT 10000;
+        '''
+        
+        # Replace 'get_connection()' with the appropriate function that returns the database connection.
+        # For the purpose of this example, we'll use a placeholder function.
+        df = pd.read_sql(sql, get_connection('tsa_item_demand'))
+
+        # Save the data to a CSV file for future use.
+        df.to_csv(filename, index=False)
+
+        return df
+
+
+
 def get_swapi_data(url):
     data = []
     while True:
@@ -28,13 +70,6 @@ def get_swapi_data(url):
             print(f"Error: {response.status_code}")
             break
     return pd.DataFrame(data)
-
-
-
-
-
-
-
  
 def get_starwars_data(starwars_df):
     '''This function creates a csv for concat time_series csv'''
@@ -46,8 +81,9 @@ def get_starwars_data(starwars_df):
 
     filename = 'time_series.csv'
     if os.path.isfile(filename):
+        
         return pd.read_csv(filename)
-get_starwars_data(starwars_df)
+# get_starwars_data(starwars_df)
 
 def get_power_data():
     '''
