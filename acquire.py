@@ -118,4 +118,6 @@ if __name__ == "__main__":
     if power_data_df is not None:
         print(power_data_df.head())
 
-
+def convert_to_datetime(df):
+    df.sale_date = pd.to_datetime(df.sale_date, infer_datetime_format=True)
+    return df
